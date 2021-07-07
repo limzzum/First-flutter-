@@ -9,9 +9,35 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
+
 //import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+class Token {
+  final int access;
+  final int refresh;
 
+
+  Token({required this.access, required this.refresh});
+
+  factory Token.fromJson(Map<String, dynamic> json) {
+    return Token(
+        access: json['access_token'],
+        refresh: json['refresh_token']
+
+    );
+  }
+}
+Future<Token> fetchToken() async{
+  final response = await http.get(Uri.parse("http://192.168.0.121:8080/start"));
+
+  if (response.statusCode == 200) {
+    // 만약 서버가 OK 응답을 반환하면, JSON을 파싱합니다.
+    return Token.fromJson(json.decode(response.body));
+  } else {
+    // 만약 응답이 OK가 아니면, 에러를 던집니다.
+    throw Exception('Failed to load post');
+  }
+}
 void main() async{
 
 
@@ -19,7 +45,7 @@ void main() async{
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -42,31 +68,17 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-class Post{
-  final int access_token;
-  final int refresh_token;
-  Post({required this.access_token,required this.refresh_token});
-  factory Post.fromJson(Map<String,dynamic>json){
-    return Post(
-      access_token: json['access_token'],
-      refresh_token: json['refresh_token']
-    );
-  }
-}
+
+
 class _MyHomePageState extends State<MyHomePage> {
-late InAppWebViewController controller;
+  late InAppWebViewController controller;
 
-Future<Post> fetchPost() async{
-  final response=await http.get(Uri.https('http://192.168.0.121:8080/start','/posts/1'));
-  if (response.statusCode==200){
-    return Post.fromJson(json.decode(response.body));
-
-  }
-  else{
-    throw Exception('Failed to load post');
-  }
-
-}
+//late Future<Token> post;
+// @override
+// void initState(){
+//   super.initState();
+//   post=fetchPost();
+// }
 
 
   // Future<bool> ?_onBackPressed() {
@@ -107,16 +119,22 @@ Future<Post> fetchPost() async{
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
 
       // child: Web(
 
         body: SafeArea(
             child: InAppWebView(
+
                 initialUrlRequest:
-                URLRequest(url: Uri.parse("http://192.168.0.121:8080/start")),
-               
-               // initialHeaders: {},
+                URLRequest(url: Uri.parse( "http://192.168.0.121:8080/start")),
+
+                onLoadStop: (controller, url) async {
+
+                print("onloadstop $url");
+                },
+                //initialHeaders: {},
                 onWebViewCreated: (InAppWebViewController w) {
                   controller=w;
 
@@ -124,24 +142,31 @@ Future<Post> fetchPost() async{
                       handlerName: "Print", callback: (args) {
                     print("from java:");
                     print(args);
+
                     //return args;
                   });
 
 
-                  },
-                onConsoleMessage:
-                    (controller, consoleMessage) {
-                  log("zzConsole:$consoleMessage");
-                  print(consoleMessage);
-                }
-
-            )
-        )
+                  }
+    )
+    )
     );
   }
 
 
+
+
+                // onConsoleMessage:
+                //     (controller, consoleMessage) {
+                //   log("zzConsole:$consoleMessage");
+                //   print(consoleMessage);
+                // }
+
 }
+
+
+
+
 
 
 
