@@ -38,6 +38,12 @@ Future<Token> fetchToken() async{
     throw Exception('Failed to load post');
   }
 }
+Future loadToken() async {
+  String jsonString = (await fetchToken()) as String;
+  final jsonResponse = json.decode(jsonString);
+  Token token = new Token.fromJson(jsonResponse);
+  print(token.access);
+}
 void main() async{
 
 
@@ -133,6 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onLoadStop: (controller, url) async {
 
                 print("onloadstop $url");
+                loadToken();
                 },
                 //initialHeaders: {},
                 onWebViewCreated: (InAppWebViewController w) {
