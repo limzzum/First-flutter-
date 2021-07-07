@@ -1,5 +1,5 @@
 
-import 'dart:async';
+import 'dart:async' show Future;
 import 'dart:convert';
 import 'dart:developer';
 //import 'dart:html';
@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart' show rootBundle;
+
 
 //import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -35,7 +37,7 @@ Future<Token> fetchToken() async{
     return Token.fromJson(json.decode(response.body));
   } else {
     // 만약 응답이 OK가 아니면, 에러를 던집니다.
-    throw Exception('Failed to load post');
+    throw Exception('Failed to load post../');
   }
 }
 Future loadToken() async {
@@ -139,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onLoadStop: (controller, url) async {
 
                 print("onloadstop $url");
-                loadToken();
+                fetchToken();
                 },
                 //initialHeaders: {},
                 onWebViewCreated: (InAppWebViewController w) {
