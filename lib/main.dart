@@ -2,6 +2,7 @@
 import 'dart:async' show Future;
 import 'dart:convert';
 import 'dart:developer';
+
 //import 'dart:html';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -29,8 +30,9 @@ class Token {
     );
   }
 }
+
  Future<Token> fetchToken() async{
-  final response =  await http.get(Uri.parse("http://192.168.0.121:8080/app/token/refresh?refresh-token="));
+  final response =  await http.get(Uri.parse("http://192.168.0.121:8081/login"));
    //return Token.fromJson(json.decode(response.body));
 //print(response);
 
@@ -44,17 +46,24 @@ class Token {
     throw Exception('Failed to load post../');
   }
 }
-Future loadToken() async {
-   Token token =  (await fetchToken()) ;
+//Future
+loadToken(string) async {
+   //Token token =  (await fetchToken()) ;
 
-  // final jsonResponse = json.decode(jsonString);
-  // Token token = new Token.fromJson(jsonResponse);
-  // Token token = fetchToken();
-  print(token);
+   final jsonResponse = json.decode(string);
+   Token token = new Token.fromJson(jsonResponse);
+  //
+  print(token.access);
 
 }
-void main() async{
 
+receiveMessage(event) {
+  if (event.origin == "http://192.168.0.121:8080")
+    return;
+print(event.data);
+//loadToken(event.data);
+}
+void main() async{
 
   runApp(MyApp());
 }
@@ -87,6 +96,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late InAppWebViewController controller;
+
+  get window => null;
 
 //late Future<Token> post;
 // @override
@@ -150,8 +161,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 },
                 onLoadStop: (controller, url) async {
-
-                print("onloadstop $url");
+  //                 await controller.evaluateJavascript(source: """
+  //   window.addEventListener("myCustomEvent", (event) => {
+  //   console.log("aaaaaaaaaaaa");
+  //     console.log(JSON.stringify(event.detail));
+  //   }, false);
+  // """);
 
                 },
                 //initialHeaders: {},
@@ -165,8 +180,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
                     //return args;
                   });
-loadToken();
-                  }
+                  // message event listener
+
+               //   window.addEventListener("message", receiveMessage, false);
+                  //   window.onMessage.listen((event) {
+                  //     print(event.data);
+                  //   // do something with received data
+                  //   });
+
+  },
+    onConsoleMessage:
+                (controller, consoleMessage) {
+        log("zzConsole:$consoleMessage");
+      // var u= controller.getUrl();
+                 // loadToken(consoleMessage.message);
+// print(consoleMessage.message);
+// print(jsonDecode(consoleMessage.message));
+        }
+
     )
     )
     );
