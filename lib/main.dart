@@ -4,6 +4,10 @@ import 'dart:convert';
 import 'dart:developer';
 
 //import 'dart:html';
+// import 'package:html/dom.dart' ;
+// import 'package:html/dom_parsing.dart';
+// import 'package:html/parser.dart';
+//import 'dart:html' as html;
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +15,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
-
 
 //import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -31,8 +34,22 @@ class Token {
   }
 }
 
+Future<http.Response> fetchPost() {
+  return http.get(Uri.parse("http://192.168.0.121:8080/start"));
+}
+Future getData() async {
+  http.Response response = await http.get(Uri.parse("http://192.168.0.121:8080/start"));
+
+  if (response.statusCode == 200) {
+    String data = response.body;
+    return jsonDecode(data);
+  } else {
+    print(response.statusCode);
+  }
+}
+
  Future<Token> fetchToken() async{
-  final response =  await http.get(Uri.parse("http://192.168.0.121:8081/login"));
+  final response =  await http.get(Uri.parse("http://192.168.0.121:8080/start"));
    //return Token.fromJson(json.decode(response.body));
 //print(response);
 
@@ -47,20 +64,20 @@ class Token {
   }
 }
 //Future
-loadToken(string) async {
-   //Token token =  (await fetchToken()) ;
+loadToken() async {
+   Token token =  (await fetchToken()) ;
 
-   final jsonResponse = json.decode(string);
-   Token token = new Token.fromJson(jsonResponse);
-  //
+  //  final jsonResponse = json.decode(string);
+  //  Token token = new Token.fromJson(jsonResponse);
+  // //
   print(token.access);
 
 }
 
-receiveMessage(event) {
-  if (event.origin == "http://192.168.0.121:8080")
+ receiveMessage(event) {
+  if (event.origin != "http://192.168.0.121:8080")
     return;
-print(event.data);
+print(event.source);
 //loadToken(event.data);
 }
 void main() async{
@@ -97,7 +114,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late InAppWebViewController controller;
 
-  get window => null;
+   get window => null;
 
 //late Future<Token> post;
 // @override
@@ -156,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 initialUrlRequest:
                 URLRequest(url: Uri.parse( "http://192.168.0.121:8080/start")),
                 onLoadStart: (controller, url) async {
-
+                  loadToken();
                   print("onloadstart $url");
 
                 },
@@ -172,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 //initialHeaders: {},
                 onWebViewCreated: (InAppWebViewController w) {
                   controller=w;
-
+                  
                   controller.addJavaScriptHandler(
                       handlerName: "Print", callback: (args) {
                     print("from java:");
@@ -182,9 +199,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                   // message event listener
 
-               //   window.addEventListener("message", receiveMessage, false);
+
+                  //window.addEventListener("message", receiveMessage, false);
                   //   window.onMessage.listen((event) {
-                  //     print(event.data);
+                  //     print(event.data+"11111111111111111");
                   //   // do something with received data
                   //   });
 
