@@ -178,13 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 },
                 onLoadStop: (controller, url) async {
-  //                 await controller.evaluateJavascript(source: """
-  //   window.addEventListener("myCustomEvent", (event) => {
-  //   console.log("aaaaaaaaaaaa");
-  //     console.log(JSON.stringify(event.detail));
-  //   }, false);
-  // """);
-
+                  print('$url');
                 },
                 //initialHeaders: {},
                 onWebViewCreated: (InAppWebViewController w) {
